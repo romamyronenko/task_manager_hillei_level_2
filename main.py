@@ -1,18 +1,24 @@
-tasks = []
+from file_manager import write_to_file, read_from_file
+
+filename = "data.txt"
 
 
 def create_task():
     title = input('введіть назву: ')
     description = input('введіть опис: ')
     task = {'title': title, "description": description}
+
+    tasks = read_from_file(filename)
     tasks.append(task)
+    write_to_file(tasks, filename)
 
 
 def show_all_tasks():
-    print(tasks)
+    print(read_from_file(filename))
 
 
 def change_task():
+    tasks = read_from_file(filename)
     title = input("введіть назву задачі яку ви хочете видалити: ")
     for task in tasks:
         if task['title'] == title:
@@ -23,6 +29,8 @@ def change_task():
 
 def delete_task():
     title = input("введіть назву задачі яку ви хочете видалити: ")
+
+    tasks = read_from_file(filename)
     for task in tasks:
         if task['title'] == title:
             tasks.remove(task)
