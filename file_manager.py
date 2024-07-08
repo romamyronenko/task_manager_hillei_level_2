@@ -1,28 +1,69 @@
-def write_to_file(task_list: list[dict], filename: str) -> None:
-    to_write = [_format_task(task) for task in task_list]
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write("\n".join(to_write))
+import abc
+import json
 
 
-def read_from_file(filename: str) -> list[dict]:
-    task_list = []
-    try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            for line in file:
-                task_list.append(_parse_str(line))
-    except:
+class AbstractFileManager(abc.ABC):
+    @abc.abstractmethod
+    def write_to_file(self, task_list: list[dict]) -> None:
         pass
-    return task_list
+
+    @abc.abstractmethod
+    def read_from_file(self) -> list[dict]:
+        pass
 
 
-def _format_task(task: dict) -> str:
-    return f'{task["title"]} | {task["description"]}'
+class TextFileManager(AbstractFileManager):
+    def __init__(self, filename):
+        self._filename = filename
+
+    def write_to_file(self, task_list: list[dict]) -> None:
+        to_write = [self._format_task(task) for task in task_list]
+
+        with open(self._filename, "w", encoding="utf-8") as f:
+            f.write("\n".join(to_write))
+
+    def read_from_file(self) -> list[dict]:
+        task_list = []
+        try:
+            with open(self._filename, 'r', encoding='utf-8') as file:
+                for line in file:
+                    task_list.append(self._parse_str(line))
+        except:
+            pass
+        return task_list
+
+    def _format_task(self, task: dict) -> str:
+        return f'{task["title"]} | {task["description"]}'
+
+    def _parse_str(self, s: str) -> dict:
+        title, description = s.strip().split(' | ')
+        return {
+            'title': title,
+            'description': description
+        }
 
 
-def _parse_str(s: str) -> dict:
-    title, description = s.strip().split(' | ')
-    return {
-        'title': title,
-        'description': description
-    }
+class JSONFileManager(AbstractFileManager):
+    def __init__(self, filename):
+        self._filename = filename
+
+    def write_to_file(self, task_list: list[dict]) -> None:
+        with open(self._filename, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(task_list))
+
+    def read_from_file(self) -> list[dict]:
+        try:
+            with open(self._filename, 'r', encoding='utf-8') as f:
+                tasks = json.loads(f.read())
+        except:
+            tasks = []
+        return tasks
+
+
+class XLSXFileManager(AbstractFileManager):
+
+    def write_to_file(self, task_list: list[dict]) -> None:
+        pass
+
+    def read_from_file(self) -> list[dict]:
+        pass

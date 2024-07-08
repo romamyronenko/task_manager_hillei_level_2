@@ -1,7 +1,9 @@
 from dispatcher import Dispatcher
-from file_manager import write_to_file, read_from_file
+from file_manager import TextFileManager
 
-filename = "data.txt"
+file_manager = TextFileManager("data.txt")
+# file_manager = JSONFileManager("data.json")
+
 
 dispatcher = Dispatcher()
 
@@ -12,37 +14,37 @@ def create_task():
     description = input('введіть опис: ')
     task = {'title': title, "description": description}
 
-    tasks = read_from_file(filename)
+    tasks = file_manager.read_from_file()
     tasks.append(task)
-    write_to_file(tasks, filename)
+    file_manager.write_to_file(tasks)
 
 
 @dispatcher.handle_message('2', "Переглянути всі задачі")
 def show_all_tasks():
-    print(read_from_file(filename))
+    print(file_manager.read_from_file())
 
 
 @dispatcher.handle_message('3', "Змінити задачу")
 def change_task():
-    tasks = read_from_file(filename)
+    tasks = file_manager.read_from_file()
     title = input("введіть назву задачі яку ви хочете видалити: ")
     for task in tasks:
         if task['title'] == title:
             print(f"Задача: {task}")
             description = input('введіть новий опис')
             task['description'] = description
-    write_to_file(tasks, filename)
+    file_manager.write_to_file(tasks)
 
 
 @dispatcher.handle_message("4", "Видалити задачу")
 def delete_task():
     title = input("введіть назву задачі яку ви хочете видалити: ")
 
-    tasks = read_from_file(filename)
+    tasks = file_manager.read_from_file()
     for task in tasks:
         if task['title'] == title:
             tasks.remove(task)
-    write_to_file(tasks, filename)
+    file_manager.write_to_file(tasks)
 
 
 dispatcher.run()
