@@ -1,8 +1,12 @@
+from dispatcher import Dispatcher
 from file_manager import write_to_file, read_from_file
 
 filename = "data.txt"
 
+dispatcher = Dispatcher()
 
+
+@dispatcher.handle_message('1', "Створити задачу")
 def create_task():
     title = input('введіть назву: ')
     description = input('введіть опис: ')
@@ -13,10 +17,12 @@ def create_task():
     write_to_file(tasks, filename)
 
 
+@dispatcher.handle_message('2', "Переглянути всі задачі")
 def show_all_tasks():
     print(read_from_file(filename))
 
 
+@dispatcher.handle_message('3', "Змінити задачу")
 def change_task():
     tasks = read_from_file(filename)
     title = input("введіть назву задачі яку ви хочете видалити: ")
@@ -25,8 +31,10 @@ def change_task():
             print(f"Задача: {task}")
             description = input('введіть новий опис')
             task['description'] = description
+    write_to_file(tasks, filename)
 
 
+@dispatcher.handle_message("4", "Видалити задачу")
 def delete_task():
     title = input("введіть назву задачі яку ви хочете видалити: ")
 
@@ -34,32 +42,7 @@ def delete_task():
     for task in tasks:
         if task['title'] == title:
             tasks.remove(task)
+    write_to_file(tasks, filename)
 
 
-def get_commands_list(cmds):
-    lines = []
-    for key, value in cmds.items():
-        lines.append(f'{key}. {value['description']}')
-
-    return "\n".join(lines)
-
-
-commands = {
-    '1': {'func': create_task, "description": "Створити задачу"},
-    '2': {'func': show_all_tasks, "description": "Переглянути всі задачі"},
-    '3': {'func': change_task, "description": "Змінити задачу"},
-    '4': {'func': delete_task, "description": "Видалити задачу"},
-}
-
-commands_descriptions = get_commands_list(commands)
-menu = f"Оберіть дію: \n{commands_descriptions}"
-
-while True:
-    cmd = input(menu)
-    if not cmd:
-        break
-
-    if cmd in commands:
-        commands[cmd]['func']()
-    else:
-        print('Невірна команда!')
+dispatcher.run()
