@@ -79,4 +79,14 @@ def delete_task(message: str):
     file_manager.write_to_file(tasks)
 
 
+@dispatcher.handle_message(CommandWithParams('delete'), "Видалити задачу")
+def delete_task(message: str):
+    title = message.split(' ', 1)[1]
+
+    tasks = file_manager.read_from_file()
+    for task in tasks:
+        if task['title'] == title:
+            tasks.remove(task)
+    file_manager.write_to_file(tasks)
+
 dispatcher.run()
