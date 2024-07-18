@@ -58,12 +58,3 @@ class JSONFileManager(AbstractFileManager):
         except:
             tasks = []
         return tasks
-
-
-class XLSXFileManager(AbstractFileManager):
-
-    def write_to_file(self, task_list: list[dict]) -> None:
-        pass
-
-    def read_from_file(self) -> list[dict]:
-        pass

@@ -59,7 +59,7 @@ def show_all_tasks(message: str):
 @dispatcher.handle_message(Command('edit'), "Змінити задачу")
 def change_task(message: str):
     tasks = file_manager.read_from_file()
-    title = input("введіть назву задачі яку ви хочете видалити: ")
+    title = input("введіть назву задачі яку ви хочете змінити: ")
     for task in tasks:
         if task['title'] == title:
             print(f"Задача: {task}")
@@ -76,6 +76,18 @@ def delete_task(message: str):
     for task in tasks:
         if task['title'] == title:
             tasks.remove(task)
+    file_manager.write_to_file(tasks)
+
+
+@dispatcher.handle_message(CommandWithParams('edit'), 'Змінити задачу ')
+def change(message: str):
+    title_description = message.split(' ', 1)[1]
+    title, new_description = title_description.split('. ', 1)
+    tasks = file_manager.read_from_file()
+    for task in tasks:
+        if task['title'] == title:
+            task['description'] = new_description
+
     file_manager.write_to_file(tasks)
 
 
