@@ -1,10 +1,8 @@
 from dispatcher import Dispatcher
-from file_manager import TextFileManager
+from file_manager import DBManager
 from filters import Command, CommandWithParams
 
-file_manager = TextFileManager("data.txt")
-# file_manager = JSONFileManager("data.json")
-
+file_manager = DBManager("database")
 
 dispatcher = Dispatcher()
 
@@ -29,9 +27,7 @@ def create_task(message: str):
     description = input('введіть опис: ')
     task = {'title': title, "description": description}
 
-    tasks = file_manager.read_from_file()
-    tasks.append(task)
-    file_manager.write_to_file(tasks)
+    file_manager.add_task(task)
 
 
 @dispatcher.handle_message(CommandWithParams('create'), "Створити задачу з вказаними параметрами")
@@ -46,59 +42,42 @@ def create_task_(message: str):
 
     task = {'title': title, "description": description}
 
-    tasks = file_manager.read_from_file()
-    tasks.append(task)
-    file_manager.write_to_file(tasks)
+    file_manager.add_task(task)
 
 
 @dispatcher.handle_message(Command('show_all'), "Переглянути всі задачі")
 def show_all_tasks(message: str):
-    print(file_manager.read_from_file())
+    print(file_manager.get_all_tasks())
 
 
 @dispatcher.handle_message(Command('edit'), "Змінити задачу")
 def change_task(message: str):
-    tasks = file_manager.read_from_file()
     title = input("введіть назву задачі яку ви хочете змінити: ")
-    for task in tasks:
-        if task['title'] == title:
-            print(f"Задача: {task}")
-            description = input('введіть новий опис')
-            task['description'] = description
-    file_manager.write_to_file(tasks)
+
+    description = input('введіть новий опис')
+    file_manager.edit_task(title, description)
 
 
 @dispatcher.handle_message(Command('delete'), "Видалити задачу")
 def delete_task(message: str):
     title = input("введіть назву задачі яку ви хочете видалити: ")
 
-    tasks = file_manager.read_from_file()
-    for task in tasks:
-        if task['title'] == title:
-            tasks.remove(task)
-    file_manager.write_to_file(tasks)
+    file_manager.delete_task(title)
 
 
 @dispatcher.handle_message(CommandWithParams('edit'), 'Змінити задачу ')
 def change(message: str):
     title_description = message.split(' ', 1)[1]
     title, new_description = title_description.split('. ', 1)
-    tasks = file_manager.read_from_file()
-    for task in tasks:
-        if task['title'] == title:
-            task['description'] = new_description
 
-    file_manager.write_to_file(tasks)
+    file_manager.edit_task(title, new_description)
 
 
 @dispatcher.handle_message(CommandWithParams('delete'), "Видалити задачу")
 def delete_task(message: str):
     title = message.split(' ', 1)[1]
 
-    tasks = file_manager.read_from_file()
-    for task in tasks:
-        if task['title'] == title:
-            tasks.remove(task)
-    file_manager.write_to_file(tasks)
+    file_manager.delete_task(title)
+
 
 dispatcher.run()

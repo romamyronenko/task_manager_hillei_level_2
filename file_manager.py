@@ -1,60 +1,56 @@
-import abc
-import json
+import sqlite3
 
 
-class AbstractFileManager(abc.ABC):
-    @abc.abstractmethod
-    def write_to_file(self, task_list: list[dict]) -> None:
-        pass
+class DBManager:
+    def __init__(self, db):
+        self._db = db
 
-    @abc.abstractmethod
-    def read_from_file(self) -> list[dict]:
-        pass
+        self._conn = sqlite3.connect(self._db)
+        self._cursor = self._conn.cursor()
+        self._cursor.execute(
+            """
+                CREATE TABLE IF NOT EXISTS Tasks(
+                title VARCHAR(255),
+                description VARCHAR(255)
+                );
+            """
+        )
 
+    def _execute(self, query):
+        self._cursor.execute(query)
+        self._conn.commit()
 
-class TextFileManager(AbstractFileManager):
-    def __init__(self, filename):
-        self._filename = filename
+    def add_task(self, task: dict) -> None:
+        self._execute(
+            f"""
+            INSERT INTO Tasks(title, description)
+            VALUES ('{task["title"]}', '{task["description"]}');
+            """
+        )
 
-    def write_to_file(self, task_list: list[dict]) -> None:
-        to_write = [self._format_task(task) for task in task_list]
+    def edit_task(self, title, new_description):
+        self._execute(
+            f"""
+            UPDATE Tasks
+            SET description='{new_description}'
+            WHERE title='{title}';
+            """
+        )
 
-        with open(self._filename, "w", encoding="utf-8") as f:
-            f.write("\n".join(to_write))
+    def delete_task(self, title):
+        self._execute(
+            f"""
+            DELETE
+            FROM Tasks
+            WHERE title='{title}';
+            """
+        )
 
-    def read_from_file(self) -> list[dict]:
-        task_list = []
-        try:
-            with open(self._filename, 'r', encoding='utf-8') as file:
-                for line in file:
-                    task_list.append(self._parse_str(line))
-        except:
-            pass
-        return task_list
-
-    def _format_task(self, task: dict) -> str:
-        return f'{task["title"]} | {task["description"]}'
-
-    def _parse_str(self, s: str) -> dict:
-        title, description = s.strip().split(' | ')
-        return {
-            'title': title,
-            'description': description
-        }
-
-
-class JSONFileManager(AbstractFileManager):
-    def __init__(self, filename):
-        self._filename = filename
-
-    def write_to_file(self, task_list: list[dict]) -> None:
-        with open(self._filename, 'w', encoding='utf-8') as f:
-            f.write(json.dumps(task_list))
-
-    def read_from_file(self) -> list[dict]:
-        try:
-            with open(self._filename, 'r', encoding='utf-8') as f:
-                tasks = json.loads(f.read())
-        except:
-            tasks = []
-        return tasks
+    def get_all_tasks(self) -> list[dict]:
+        self._execute(
+            """
+            SELECT title, description
+            FROM Tasks;
+            """
+        )
+        return self._cursor.fetchall()
