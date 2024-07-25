@@ -11,7 +11,8 @@ class DBManager:
             """
                 CREATE TABLE IF NOT EXISTS Tasks(
                 title VARCHAR(255),
-                description VARCHAR(255)
+                description VARCHAR(255),
+                user_id INTEGER
                 );
             """
         )
@@ -23,34 +24,38 @@ class DBManager:
     def add_task(self, task: dict) -> None:
         self._execute(
             f"""
-            INSERT INTO Tasks(title, description)
-            VALUES ('{task["title"]}', '{task["description"]}');
+            INSERT INTO Tasks(title, description, user_id)
+            VALUES ('{task["title"]}', '{task["description"]}', {task['user_id']});
             """
         )
 
-    def edit_task(self, title, new_description):
+    def edit_task(self, title, new_description, user_id):
         self._execute(
             f"""
             UPDATE Tasks
             SET description='{new_description}'
-            WHERE title='{title}';
+            WHERE title='{title}' AND user_id={user_id};
             """
         )
 
-    def delete_task(self, title):
+    def delete_task(self, title, user_id):
         self._execute(
             f"""
             DELETE
             FROM Tasks
-            WHERE title='{title}';
+            WHERE title='{title}' AND user_id={user_id};
             """
         )
 
-    def get_all_tasks(self) -> list[dict]:
+    def get_all_tasks(self, user_id) -> list[dict]:
         self._execute(
-            """
+            f"""
             SELECT title, description
-            FROM Tasks;
+            FROM Tasks
+            WHERE user_id={user_id};
             """
         )
         return self._cursor.fetchall()
+
+
+db_manager = DBManager("database1")
