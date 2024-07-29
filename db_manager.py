@@ -10,6 +10,7 @@ class DBManager:
         self._cursor.execute(
             """
                 CREATE TABLE IF NOT EXISTS Tasks(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title VARCHAR(255),
                 description VARCHAR(255),
                 user_id INTEGER
@@ -38,19 +39,19 @@ class DBManager:
             """
         )
 
-    def delete_task(self, title, user_id):
+    def delete_task(self, id_, user_id):
         self._execute(
             f"""
             DELETE
             FROM Tasks
-            WHERE title='{title}' AND user_id={user_id};
+            WHERE id={id_} AND user_id={user_id};
             """
         )
 
     def get_all_tasks(self, user_id) -> list[dict]:
         self._execute(
             f"""
-            SELECT title, description
+            SELECT id, title, description
             FROM Tasks
             WHERE user_id={user_id};
             """
