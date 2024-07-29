@@ -30,12 +30,12 @@ class DBManager:
             """
         )
 
-    def edit_task(self, title, new_description, user_id):
+    def edit_task(self, id_, new_description, user_id):
         self._execute(
             f"""
             UPDATE Tasks
             SET description='{new_description}'
-            WHERE title='{title}' AND user_id={user_id};
+            WHERE id={id_} AND user_id={user_id};
             """
         )
 
