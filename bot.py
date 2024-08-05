@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import sys
 
 from aiogram import Bot, Dispatcher
@@ -14,7 +15,7 @@ from routers.delete import router as delete_router
 from routers.edit import router as edit_router
 from tools import show_tasks
 
-TOKEN = "7004254683:AAGPcRYXFVVz_zr2caoRqV7kdMMUnXbEQoc"
+TOKEN = os.getenv("BOT_TOKEN")
 dp = Dispatcher()
 
 dp.include_router(create_router)
