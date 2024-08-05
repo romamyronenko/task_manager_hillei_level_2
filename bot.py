@@ -5,6 +5,7 @@ import sys
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, BotCommand
@@ -16,6 +17,7 @@ from routers.edit import router as edit_router
 from tools import show_tasks
 
 TOKEN = os.getenv("BOT_TOKEN")
+PROXY_URL = "http://proxy.server:3128"
 dp = Dispatcher()
 
 dp.include_router(create_router)
@@ -65,7 +67,8 @@ async def edit(message: Message):
 
 
 async def main() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    session = AiohttpSession(proxy=PROXY_URL)
+    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML), session=session)
 
     await bot.set_my_commands(
         [
