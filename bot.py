@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, BotCommand
 
 from db_manager import db_manager
 from routers.create import router as create_router
@@ -24,17 +24,22 @@ dp.include_router(delete_router)
 
 @dp.message(Command("test"))
 async def test(message: Message) -> None:
-    await message.answer("Hello", reply_markup=ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text='text1'), KeyboardButton(text='text3')],
-            [KeyboardButton(text='text2')]
-        ]
-    ), )
+    await message.answer(
+        "Hello",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="text1"), KeyboardButton(text="text3")],
+                [KeyboardButton(text="text2")],
+            ]
+        ),
+    )
 
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {message.from_user.full_name}! {message.from_user.id}")
+    await message.answer(
+        f"Hello, {message.from_user.full_name}! {message.from_user.id}"
+    )
 
 
 @dp.message(Command("show_all"))
@@ -60,6 +65,15 @@ async def edit(message: Message):
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
+    await bot.set_my_commands(
+        [
+            BotCommand(command="/show_all", description="Показати всі задачі"),
+            BotCommand(command="/create", description="Створити нову задачу"),
+            BotCommand(command="/edit", description="Змінити задачу"),
+            BotCommand(command="/delete", description="Видалити задачу"),
+        ]
+    )
 
     await dp.start_polling(bot)
 
