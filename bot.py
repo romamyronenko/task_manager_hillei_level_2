@@ -17,7 +17,6 @@ from routers.edit import router as edit_router
 from tools import show_tasks
 
 TOKEN = os.getenv("BOT_TOKEN")
-PROXY_URL = "http://proxy.server:3128"
 dp = Dispatcher()
 
 dp.include_router(create_router)
@@ -67,8 +66,7 @@ async def edit(message: Message):
 
 
 async def main() -> None:
-    session = AiohttpSession(proxy=PROXY_URL)
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML), session=session)
+    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     await bot.set_my_commands(
         [
